@@ -24,7 +24,7 @@ local function checkerror(code)
 end
 
 function Echap:GetServerInfo(ip, port, callback)
-    http.Fetch(Echap.Settings.URLServesTabs.."?ip="..ip.."&port="..port,
+    http.Fetch(Echap.Settings.URLServesTabs.."?address="..ip..":"..port,
         function(body, len, headers, code)
             checkerror(code)
             callback(util.JSONToTable(body))
@@ -74,11 +74,13 @@ function PANEL:Init()
         for k, v in pairs(Echap.Settings.Server) do
             if not v.Enabled then continue end 
             Echap:GetServerInfo(v.IP, v.Port, function(data)
-                
                 if !IsValid(Echap.Serverlist) then return end
-                if not data then return end
-                if data.players == nil or data.maxplayers == nil then return end
-                if v.Map and data.map == nil then return end
+                if !data or !data.response or !data.response.servers then return end
+                
+                local server = data.response.servers[1]
+
+                if server.players == nil or server.max_players == nil then return end
+                if v.Map and server.map == nil then return end
 
                 Echap.Server = vgui.Create("DPanel")
                 Echap.Server:SetSize(10, v.Map and 220 or 200)
@@ -89,10 +91,10 @@ function PANEL:Init()
                     surface.DrawOutlinedRect( 0, 0, w , h )
                     
                     draw.SimpleText(v.Name,"Echap.Server.Name",w/2,5,color_text,TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP)
-                    draw.SimpleText(Echap.GetLanguage("Players").." : "..data.players.."/"..data.maxplayers,"Echap.Server.Text",8,50,color_text,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+                    draw.SimpleText(Echap.GetLanguage("Players").." : "..server.players.."/"..server.max_players,"Echap.Server.Text",8,50,color_text,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 
                     if v.Map then
-                        draw.SimpleText(Echap.GetLanguage("Map").." : "..data.map,"Echap.Server.Text",8,70,color_text,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+                        draw.SimpleText(Echap.GetLanguage("Map").." : "..server.map,"Echap.Server.Text",8,70,color_text,TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
                     end
                 end
 

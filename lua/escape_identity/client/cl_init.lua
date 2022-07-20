@@ -62,7 +62,7 @@ function Echap:Launch()
 	Echap.Base:SetSize(ScrW(), ScrH())
 
 	if string.sub(Echap.Settings.Background, 1, 4) == "http" then
-		Echap.GetImage(Echap.Settings.Background, Echap.Settings.BackgroundName, function(url, filename)
+		Echap.GetImage(Echap.Settings.Background, "background.png", function(url, filename)
 			local background = Material(filename)
 			Echap.Base.Paint = function(self, w, h)
 				surface.SetMaterial(background)
@@ -103,7 +103,7 @@ function Echap:Launch()
 		Echap.Icon.Image:SetPos( 1, 1 )
 		Echap.Icon.Image:SetPlayer( ply, 128 )
 	elseif string.sub(Echap.Settings.Logo, 1, 4) == "http" then
-		Echap.GetImage(Echap.Settings.Logo, Echap.Settings.LogoName, function(url, filename)
+		Echap.GetImage(Echap.Settings.Logo, "logo.png", function(url, filename)
 			Echap.Icon.Image = vgui.Create( "DImage", Echap.Icon )
 			Echap.Icon.Image:SetPos( 1,1 )
 			Echap.Icon.Image:SetSize( ScrW()/12.5, ScrW()/12.5 )
@@ -164,7 +164,7 @@ function Echap:Launch()
 		local icon = Material( v.Icon )
 
 		if string.sub(v.Icon, 1, 4) == "http" then
-			Echap.GetImage(v.Icon, v.IconName, function(url, filename)
+			Echap.GetImage(v.Icon, "button"..k..".png", function(url, filename)
 				v.Icon = filename
 				icon = Material( v.Icon )
 			end)
