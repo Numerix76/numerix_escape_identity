@@ -15,43 +15,30 @@ local colorbg_button = Color(33, 31, 35, 200)
 local colorbg_nav = Color(52, 55, 64, 100)
 
 -----------------------------------------------------------------
---  Echap:Launch
+--  Echap:Open
 -----------------------------------------------------------------
 local blur = Material("pp/blurscreen")
 local function blurPanel(p, a, h)
-		local x, y = p:LocalToScreen(0, 0)
-		local scrW, scrH = ScrW(), ScrH()
-		surface.SetDrawColor(color_white)
-		surface.SetMaterial(blur)
-		for i = 1, (h or 3) do
-			blur:SetFloat("$blur", (i/3)*(a or 6))
-			blur:Recompute()
-			render.UpdateScreenEffectTexture()
-			surface.DrawTexturedRect(x*-1,y*-1,scrW,scrH)
-		end
+	local x, y = p:LocalToScreen(0, 0)
+	local scrW, scrH = ScrW(), ScrH()
+	surface.SetDrawColor(color_white)
+	surface.SetMaterial(blur)
+	for i = 1, (h or 3) do
+		blur:SetFloat("$blur", (i/3)*(a or 6))
+		blur:Recompute()
+		render.UpdateScreenEffectTexture()
+		surface.DrawTexturedRect(x*-1,y*-1,scrW,scrH)
+	end
 end
 
-function Echap:Launch()
+function Echap:Open()
 	local ply = LocalPlayer()
 
-	if IsValid( Echap.Base ) then
-		if Echap.Base:IsVisible() then
-			Echap.Base:Remove()
-			gui.EnableScreenClicker(false)
-			isEscapeActive = false
-
-			Echap.HideBox()
-			hook.Remove("HUDShouldDraw", "Echap.HideAllHUD")
-
-			return false
-		end
-	end
+	Echap:Close()
 
 	hook.Add("HUDShouldDraw", "Echap.HideAllHUD", function()
 		return false
 	end)
-
-	gui.EnableScreenClicker(true)
 
     Echap.Base = vgui.Create("DFrame")
 	Echap.Base:SetTitle("")
@@ -60,6 +47,17 @@ function Echap:Launch()
 	Echap.Base:MakePopup()
     Echap.Base:SetPos(0,0)
 	Echap.Base:SetSize(ScrW(), ScrH())
+	Echap.Base.OnKeyCodePressed = function(self, key)
+		local F4Key = input.GetKeyCode(input.LookupBinding("gm_showspare2")) or KEY_F4
+
+		if key == F4Key then
+			Echap:Close()
+
+			if F4Menu and !F4Menu:IsOpen() then
+				F4Menu:Open()
+			end
+		end
+	end
 
 	if string.sub(Echap.Settings.Background, 1, 4) == "http" then
 		Echap.GetImage(Echap.Settings.Background, "background.png", function(url, filename)
@@ -274,33 +272,31 @@ function Echap:Launch()
 		vgui.Create( "Echap_Tab_Escape", Echap.Content )
 	end
 end
------------------------------------------------------------------
---  Keybinds
------------------------------------------------------------------
 
-local keyNames
-local function KeyNameToNumber(str)
-    if not keyNames then
-        keyNames = {}
-        for i = 1, 107, 1 do
-            keyNames[input.GetKeyName(i)] = i
-        end
-    end
-
-    return keyNames[str]
+function Echap:Close()
+	if IsValid( Echap.Base ) then
+		Echap.Base:Remove()
+			
+		Echap.HideBox()
+		hook.Remove("HUDShouldDraw", "Echap.HideAllHUD")
+	end
 end
 
-hook.Add("PreRender", "Echap:PreRender", function()
-	local F4Key = KeyNameToNumber(input.LookupBinding("gm_showspare2")) or KEY_F4
-	if ( gui.IsGameUIVisible() and input.IsKeyDown( KEY_ESCAPE ) or input.IsKeyDown( F4Key ) && isEscapeActive == true ) then
-		isEscapeActive = true
-		InitialPanel = false
-		gui.HideGameUI()
-		if IsValid( Echap.Base ) then
-    		Echap:Launch()
-			isEscapeActive = false
-		else
-			Echap:Launch()
-		end
+function Echap:IsOpen()
+	return IsValid(Echap.Base)
+end
+
+hook.Add( "OnPauseMenuShow", "Echap:Toggle", function()
+	if ( Echap:IsOpen() ) then 
+		Echap:Close()
+	else
+		Echap:Open()
 	end
-end )
+
+	if ( F4Menu and F4Menu:IsOpen() ) then
+		F4Menu:Close()
+	end
+
+	return false
+end)
+

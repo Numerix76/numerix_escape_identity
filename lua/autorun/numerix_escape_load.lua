@@ -11,7 +11,7 @@ Echap.Language = Echap.Language or {}
 
 local FileSystem = "escape_identity"
 local AddonName = "Identity Escape"
-local Version  = "1.2.0"
+local Version  = "1.3.0"
 local FromWorshop = false
 
 if SERVER then
