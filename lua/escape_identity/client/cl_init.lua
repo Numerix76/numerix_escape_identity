@@ -31,10 +31,14 @@ local function blurPanel(p, a, h)
 	end
 end
 
-function Echap:Open()
+function Echap:Launch()
 	local ply = LocalPlayer()
 
-	Echap:Close()
+	if ( Echap:IsOpen() ) then
+		Echap:Close()
+
+		return
+	end
 
 	hook.Add("HUDShouldDraw", "Echap.HideAllHUD", function()
 		return false
@@ -54,7 +58,7 @@ function Echap:Open()
 			Echap:Close()
 
 			if F4Menu and !F4Menu:IsOpen() then
-				F4Menu:Open()
+				F4Menu:Launch()
 			end
 		end
 	end
@@ -290,7 +294,7 @@ hook.Add( "OnPauseMenuShow", "Echap:Toggle", function()
 	if ( Echap:IsOpen() ) then 
 		Echap:Close()
 	else
-		Echap:Open()
+		Echap:Launch()
 	end
 
 	if ( F4Menu and F4Menu:IsOpen() ) then
